@@ -24,4 +24,22 @@
         <item>usage</item>
     </string-array>
 
+    <string-array name="pref_web_search_engine_entries">
+        <item>Google</item>
+        <item>Bing</item>
+        <item>Yahoo</item>
+        <item>StartPage (GET)</item>
+        <item>DuckDuckGo</item>
+        <item>Wikipedia</item>
+    </string-array>
+
+    <string-array name="pref_web_search_engine_uris">
+        <item>www.google.com/search?q=</item>
+        <item>www.bing.com/search?q=</item>
+        <item>search.yahoo.com/search?p=</item>
+        <item>www.startpage.com/do/search?query=</item>
+        <item>duckduckgo.com/?q=</item>
+        <item>www.wikipedia.org/w/index.php?redirect=no&amp;title=</item>
+    </string-array>
+
 </resources>

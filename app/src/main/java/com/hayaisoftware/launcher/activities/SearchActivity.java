@@ -16,6 +16,7 @@
 package com.hayaisoftware.launcher.activities;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,8 +52,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -74,6 +77,8 @@ import com.hayaisoftware.launcher.comparators.UsageOrder;
 import com.hayaisoftware.launcher.threading.SimpleTaskConsumerManager;
 import com.hayaisoftware.launcher.util.ContentShare;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,6 +140,7 @@ public class SearchActivity extends Activity
         public void onTextChanged(CharSequence s, int start, int before,
                                   int count) {
             mClearButton.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+            updateWebSearchButton(s.length() > 1);
             updateVisibleApps();
         }
 
@@ -156,6 +162,15 @@ public class SearchActivity extends Activity
     private boolean mAutoKeyboard;
     private boolean mIsCacheClear;
 
+    //
+    //  Web search
+    //
+    private ImageButton mWebSearchButton;
+    private Drawable mSearchIcon;
+    private Drawable mWebIcon;
+    private String mSearchEngineQuery;
+    private static final String mDefaultSearchEngineQuery = "https://www.google.com/search?q=";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,11 +189,15 @@ public class SearchActivity extends Activity
         mWordSinceLastSpaceBuilder = new StringBuilder(64);
         mWordSinceLastCapitalBuilder = new StringBuilder(64);
 
+        mContext = getApplicationContext();
+
+        mWebSearchButton = (ImageButton) findViewById(R.id.websearch_button);
+        mSearchIcon = mContext.getDrawable(R.drawable.ic_search_hintgrey_24dp);
+        mWebIcon = mContext.getDrawable(R.drawable.ic_language_lightblue_24dp);
         mSearchEditText = (EditText) findViewById(R.id.editText1);
         mAppListView = (GridView) findViewById(R.id.appsContainer);
         mClearButton = findViewById(R.id.clear_button);
         mOverflowButtonTopleft = findViewById(R.id.overflow_button_topleft);
-        mContext = getApplicationContext();
         mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         mStatusBarHeight = StatusBarColorHelper.getStatusBarHeight(resources);
         final DisplayMetrics displayMetrics = resources.getDisplayMetrics();
@@ -205,8 +224,7 @@ public class SearchActivity extends Activity
         mLaunchableActivityPrefs = new LaunchableActivityPrefs(this);
 
         //noinspection deprecation
-        mDefaultAppIcon = Resources.getSystem().getDrawable(
-                android.R.mipmap.sym_def_app_icon);
+        mDefaultAppIcon = mContext.getDrawable(android.R.mipmap.sym_def_app_icon);
         mIconSizePixels = resources.getDimensionPixelSize(R.dimen.app_icon_size);
 
 
@@ -383,10 +401,10 @@ public class SearchActivity extends Activity
         mShouldOrderByUsages = order.equals("usage");
         mShouldOrderByRecents = order.equals("recent");
 
-        mDisableIcons =
-                mSharedPreferences.getBoolean("pref_disable_icons", false);
-        mAutoKeyboard =
-                mSharedPreferences.getBoolean("pref_autokeyboard", false);
+        mSearchEngineQuery = mSharedPreferences.getString("pref_web_search_engine", mDefaultSearchEngineQuery);
+
+        mDisableIcons = mSharedPreferences.getBoolean("pref_disable_icons", false);
+        mAutoKeyboard = mSharedPreferences.getBoolean("pref_autokeyboard", false);
     }
 
     private void setupImageLoadingThreads(final Resources resources) {
@@ -407,7 +425,19 @@ public class SearchActivity extends Activity
         return numThreads;
     }
 
-    private void updateApps(final List<LaunchableActivity> updatedActivityInfos, boolean addToTrie) {
+    private void updateWebSearchButton(boolean showWebNotSearch) {
+        // Update icon and make clickable
+        if (showWebNotSearch) {
+            mWebSearchButton.setImageDrawable(mWebIcon);
+            mWebSearchButton.setClickable(true);
+        } else {
+            mWebSearchButton.setImageDrawable(mSearchIcon);
+            mWebSearchButton.setClickable(false);
+        }
+    }
+
+    private void updateApps(final List<LaunchableActivity> updatedActivityInfos,
+                            boolean addToTrie) {
 
         for (LaunchableActivity launchableActivity : updatedActivityInfos) {
             final String packageName = launchableActivity.getComponent().getPackageName();
@@ -500,7 +530,7 @@ public class SearchActivity extends Activity
 
         if (mShouldOrderByRecents) {
             Collections.sort(mActivityInfos, mRecentOrderComparator);
-        } else if(mShouldOrderByUsages) {
+        } else if (mShouldOrderByUsages) {
             Collections.sort(mActivityInfos, mUsageOrderComparator);
         }
 
@@ -668,10 +698,10 @@ public class SearchActivity extends Activity
         } else if (key.equals("pref_disable_icons")) {
             recreate();
         } else if (key.equals("pref_autokeyboard")) {
-            mAutoKeyboard = mSharedPreferences.getBoolean("pref_autokeyboard", false);
+            mAutoKeyboard = mSharedPreferences.getBoolean(key, false);
+        } else if (key.equals("pref_web_search_engine")) {
+            mSearchEngineQuery = mSharedPreferences.getString(key, mDefaultSearchEngineQuery);
         }
-
-
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -786,8 +816,6 @@ public class SearchActivity extends Activity
 
     public void onClickSettingsButton(View view) {
         showPopup(mOverflowButtonTopleft);
-
-
     }
 
     public void launchActivity(final LaunchableActivity launchableActivity) {
@@ -809,6 +837,22 @@ public class SearchActivity extends Activity
         }
 
 
+    }
+
+    public void onClickWebSearchButton(View view) {
+        if (mSearchEditText.length() > 0) {
+            String query = mSearchEditText.getText().toString();
+            query.replaceAll(" ", "+");
+            try {
+                // Note that Wikipedia doesn't accept %-encoded strings in it's queries.
+                query = URLEncoder.encode(query, "utf-8");
+            } catch (UnsupportedEncodingException exception) {
+                Toast.makeText(mContext, "Exception encoding query!", Toast.LENGTH_SHORT).show();
+            }
+            final String searchURI = "https://" + mSearchEngineQuery + query;
+            Intent browserSearchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(searchURI));
+            startActivity(browserSearchIntent);
+        }
     }
 
     public void onClickClearButton(View view) {

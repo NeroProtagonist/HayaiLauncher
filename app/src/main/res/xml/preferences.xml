@@ -1,31 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="pref_category_general"
-        android:title="@string/settings_category_general_category">
+        android:title="@string/settings_category_general_category"
+        >
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_autokeyboard"
-            android:title="@string/settings_autokeyboard" />
+            android:title="@string/settings_autokeyboard"
+            />
         <ListPreference
             android:defaultValue="recent"
             android:dialogTitle="@string/pref_preferred_app_order_dialog"
             android:entries="@array/pref_app_preferred_order_entries"
             android:entryValues="@array/pref_app_preferred_order_values"
             android:key="pref_app_preferred_order"
-            android:title="@string/pref_preferred_app_order_dialog" />
+            android:title="@string/pref_preferred_app_order_dialog"
+            />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_disable_icons"
-            android:title="@string/settings_disable_icon_loading" />
+            android:title="@string/settings_disable_icon_loading"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_category_websearch"
+        android:title="Web Search"
+        >
+        <ListPreference
+            android:key="pref_web_search_engine"
+            android:dialogTitle="Search engine"
+            android:title="Search engine"
+            android:entries="@array/pref_web_search_engine_entries"
+            android:entryValues="@array/pref_web_search_engine_uris"
+            android:defaultValue="Google"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="pref_category_notification"
-        android:title="@string/settings_category_notification_category">
+        android:title="@string/settings_category_notification_category"
+        >
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_notification"
-            android:title="@string/settings_enable_notification_title" />
+            android:title="@string/settings_enable_notification_title"
+            />
 
         <ListPreference
             android:defaultValue="min"
@@ -34,6 +53,7 @@
             android:entries="@array/pref_notification_priority_entries"
             android:entryValues="@array/pref_notification_priority_values"
             android:key="pref_notification_priority"
-            android:title="@string/pref_notification_priority" />
+            android:title="@string/pref_notification_priority"
+            />
     </PreferenceCategory>
 </PreferenceScreen>
