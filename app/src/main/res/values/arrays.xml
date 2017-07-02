@@ -24,7 +24,7 @@
         <item>usage</item>
     </string-array>
 
-    <string-array name="pref_web_search_engine_entries">
+    <string-array name="pref_web_search_engine_entries" translatable="false">
         <item>Google</item>
         <item>Bing</item>
         <item>Yahoo</item>
@@ -33,7 +33,7 @@
         <item>Wikipedia</item>
     </string-array>
 
-    <string-array name="pref_web_search_engine_uris">
+    <string-array name="pref_web_search_engine_uris" translatable="false">
         <item>www.google.com/search?q=</item>
         <item>www.bing.com/search?q=</item>
         <item>search.yahoo.com/search?p=</item>
