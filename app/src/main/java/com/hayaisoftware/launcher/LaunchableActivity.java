@@ -28,28 +28,26 @@ import android.graphics.drawable.Drawable;
 
 import com.hayaisoftware.launcher.util.ContentShare;
 
+public class LaunchableActivity {
 
-public class LaunchableActivity{
-
-    private final ActivityInfo mActivityInfo;
-    private final String mActivityLabel;
+    private final ActivityInfo  mActivityInfo;
+    private final String        mActivityLabel;
     private final ComponentName mComponentName;
-    private Intent mLaunchIntent;
-    private long lastLaunchTime;
-    private int usagesQuantity;
-    private boolean mShareable;
-    private Drawable mActivityIcon;
-    private int mPriority;
+    private       Intent        mLaunchIntent;
+    private       long          lastLaunchTime;
+    private       int           usagesQuantity;
+    private       boolean       mShareable;
+    private       Drawable      mActivityIcon;
+    private       int           mPriority;
 
-    public LaunchableActivity(final ActivityInfo activityInfo, final String activityLabel,
-                              final boolean isShareable) {
+    public LaunchableActivity(final ActivityInfo activityInfo, final String activityLabel, final boolean isShareable) {
         this.mActivityInfo = activityInfo;
         this.mActivityLabel = activityLabel;
         mComponentName = new ComponentName(activityInfo.packageName, activityInfo.name);
         this.mShareable = isShareable;
     }
-    public LaunchableActivity(final ComponentName componentName, final String label,
-                              final Drawable activityIcon, final Intent launchIntent){
+
+    public LaunchableActivity(final ComponentName componentName, final String label, final Drawable activityIcon, final Intent launchIntent) {
         this.mComponentName = componentName;
         this.mActivityLabel = label;
         this.mLaunchIntent = launchIntent;
@@ -58,8 +56,9 @@ public class LaunchableActivity{
     }
 
     public Intent getLaunchIntent(final String searchString) {
-        if (mLaunchIntent != null)
+        if (mLaunchIntent != null) {
             return mLaunchIntent;
+        }
         if (isShareable()) {
             final Intent launchIntent = ContentShare.shareTextIntent(searchString);
             launchIntent.setComponent(getComponent());
@@ -100,46 +99,38 @@ public class LaunchableActivity{
         return mActivityIcon != null;
     }
 
-    public synchronized void deleteActivityIcon(){
-        mActivityIcon=null;
+    public synchronized void deleteActivityIcon() {
+        mActivityIcon = null;
     }
 
-    public synchronized Drawable getActivityIcon(final PackageManager pm, final Context context,
-                                                 final int iconSizePixels) {
+    public synchronized Drawable getActivityIcon(final PackageManager pm, final Context context, final int iconSizePixels) {
         if (!isIconLoaded()) {
             Drawable _activityIcon = null;
-                final ActivityManager activityManager =
-                        (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-                final int iconDpi = activityManager.getLauncherLargeIconDensity();
-                try {
-                    //noinspection deprecation
-                    _activityIcon =
-                            pm.getResourcesForActivity(mComponentName).getDrawableForDensity(
-                                    mActivityInfo.getIconResource(), iconDpi);
+            final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            final int iconDpi = activityManager.getLauncherLargeIconDensity();
+            try {
+                //noinspection deprecation
+                _activityIcon = pm.getResourcesForActivity(mComponentName).getDrawableForDensity(mActivityInfo.getIconResource(), iconDpi);
 
-                } catch (PackageManager.NameNotFoundException | Resources.NotFoundException e) {
-                    //if we get here, there's no icon to load.
-                    //there's nothing to do, as the android default icon will be loaded
-                }
+            } catch (PackageManager.NameNotFoundException | Resources.NotFoundException e) {
+                //if we get here, there's no icon to load.
+                //there's nothing to do, as the android default icon will be loaded
+            }
 
-                if (_activityIcon == null) {
-                    //noinspection deprecation
-                    _activityIcon = Resources.getSystem().getDrawable(
-                            android.R.mipmap.sym_def_app_icon);
-                }
-
+            if (_activityIcon == null) {
+                //noinspection deprecation
+                _activityIcon = Resources.getSystem().getDrawable(android.R.mipmap.sym_def_app_icon);
+            }
 
             //rescaling the icon if it is bigger than the target size
             //TODO do this when it is not a bitmap drawable?
             if (_activityIcon instanceof BitmapDrawable) {
                 //Log.d("SIZE"," "+_activityIcon.getIntrinsicHeight()+ " not "+iconSizePixels);
                 //Log.d("SIZE"," "+_activityIcon.getIntrinsicHeight()+ " not "+iconSizePixels);
-                if (_activityIcon.getIntrinsicHeight() > iconSizePixels &&
-                        _activityIcon.getIntrinsicWidth() > iconSizePixels) {
+                if (_activityIcon.getIntrinsicHeight() > iconSizePixels && _activityIcon.getIntrinsicWidth() > iconSizePixels) {
                     //noinspection deprecation
                     _activityIcon = new BitmapDrawable(
-                            Bitmap.createScaledBitmap(((BitmapDrawable) _activityIcon).getBitmap()
-                                    , iconSizePixels, iconSizePixels, false));
+                            Bitmap.createScaledBitmap(((BitmapDrawable) _activityIcon).getBitmap(), iconSizePixels, iconSizePixels, false));
                 }
             }
             mActivityIcon = _activityIcon;
@@ -160,12 +151,14 @@ public class LaunchableActivity{
     }
 
     public void addUsage() {
-        usagesQuantity ++;
+        usagesQuantity++;
     }
-    public int getusagesQuantity(){
+
+    public int getusagesQuantity() {
         return usagesQuantity;
     }
-    public void setusagesQuantity(int usagesQuantity){
+
+    public void setusagesQuantity(int usagesQuantity) {
         this.usagesQuantity = usagesQuantity;
     }
 }

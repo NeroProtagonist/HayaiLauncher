@@ -27,10 +27,11 @@ import android.view.Menu;
 import com.hayaisoftware.launcher.R;
 import com.hayaisoftware.launcher.ShortcutNotificationManager;
 
-public class SettingsActivity extends PreferenceActivity implements
-        OnSharedPreferenceChangeListener {
+public class SettingsActivity
+        extends PreferenceActivity
+        implements OnSharedPreferenceChangeListener {
 
-    public static final String KEY_PREF_NOTIFICATION = "pref_notification";
+    public static final String KEY_PREF_NOTIFICATION          = "pref_notification";
     public static final String KEY_PREF_NOTIFICATION_PRIORITY = "pref_notification_priority";
 
     @SuppressWarnings("deprecation")
@@ -42,27 +43,21 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             //remove priority preference (not supported)
-            PreferenceCategory notificationCategory =
-                    (PreferenceCategory) findPreference("pref_category_notification");
-            ListPreference priorityPreference =
-                    (ListPreference) findPreference("pref_notification_priority");
+            PreferenceCategory notificationCategory = (PreferenceCategory) findPreference("pref_category_notification");
+            ListPreference priorityPreference = (ListPreference) findPreference("pref_notification_priority");
             notificationCategory.removePreference(priorityPreference);
         }
     }
 
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                          String key) {
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(KEY_PREF_NOTIFICATION) || key.equals(KEY_PREF_NOTIFICATION_PRIORITY)) {
-            boolean notificationEnabled =
-                    sharedPreferences.getBoolean(KEY_PREF_NOTIFICATION, false);
+            boolean notificationEnabled = sharedPreferences.getBoolean(KEY_PREF_NOTIFICATION, false);
             ShortcutNotificationManager shortcutNotificationManager = new ShortcutNotificationManager();
             shortcutNotificationManager.cancelNotification(this);
             if (notificationEnabled) {
-                final String strPriority =
-                        sharedPreferences.getString(SettingsActivity.KEY_PREF_NOTIFICATION_PRIORITY,
-                                "low");
+                final String strPriority = sharedPreferences.getString(SettingsActivity.KEY_PREF_NOTIFICATION_PRIORITY, "low");
                 final int priority = ShortcutNotificationManager.getPriorityFromString(strPriority);
                 shortcutNotificationManager.showNotification(this, priority);
             }
@@ -81,15 +76,13 @@ public class SettingsActivity extends PreferenceActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected void onPause() {
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
         finish();
     }

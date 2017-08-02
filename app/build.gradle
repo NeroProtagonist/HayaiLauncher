@@ -5,8 +5,8 @@ android {
     buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId 'com.hayaisoftware.launcher'
-        minSdkVersion 15
-        targetSdkVersion 22
+        minSdkVersion 23
+        targetSdkVersion 25
         versionCode 10405
         versionName "1.4.5"
     }
@@ -23,5 +23,4 @@ android {
 }
 
 dependencies {
-
 }
